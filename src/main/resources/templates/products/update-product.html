@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title>Update Product</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #121212; /* Nền đen */
+            color: #ffffff; /* Màu chữ trắng */
+        }
+
+        .form-label {
+            color: #ffffff; /* Màu chữ trắng cho nhãn */
+        }
+
+        .form-control {
+            background-color: #333333; /* Nền xám đậm cho ô nhập liệu */
+            color: #ffffff; /* Màu chữ trắng cho ô nhập liệu */
+            border: 1px solid #444444; /* Đường viền xám đậm */
+        }
+
+        .form-control::placeholder {
+            color: #888888; /* Màu chữ cho placeholder */
+        }
+
+        .text-danger {
+            color: #ff6961; /* Màu chữ đỏ cho lỗi */
+        }
+
+        .btn-primary {
+            background-color: #1e90ff; /* Màu xanh cho nút chính */
+            border-color: #1e90ff; /* Màu viền xanh */
+        }
+
+        .btn-primary:hover {
+            background-color: #1c86ee; /* Màu xanh đậm hơn khi hover */
+            border-color: #1c86ee; /* Màu viền xanh đậm hơn khi hover */
+        }
+
+        .btn-link {
+            color: #1e90ff; /* Màu xanh cho liên kết */
+        }
+
+        .btn-link:hover {
+            color: #1c86ee; /* Màu xanh đậm hơn khi hover */
+        }
+
+        .product-image {
+            max-width: 300px; /* Đặt chiều rộng tối đa */
+            height: auto; /* Tự động tính toán chiều cao */
+            display: block; /* Đảm bảo hiển thị ảnh đúng cách */
+            margin-bottom: 10px; /* Khoảng cách dưới ảnh */
+            border: 1px solid #444444; /* Đường viền xám đậm */
+            border-radius: 5px; /* Bo góc cho ảnh */
+        }
+    </style>
+</head>
+<body>
+<section layout:fragment="content" class="container mt-5">
+    <h1>Edit Product</h1>
+    <form th:action="@{/products/update/{id}(id=${product.id})}" th:object="${product}" method="post"
+          class="needs-validation" novalidate>
+        <div class="mb-3">
+            <label for="name" class="form-label">Name:</label>
+            <input type="text" th:field="*{name}" class="form-control" id="name" required>
+            <div class="text-danger" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></div>
+        </div>
+        <div class="mb-3">
+            <label for="price" class="form-label">Price:</label>
+            <input type="text" th:field="*{price}" class="form-control" id="price" required>
+        </div>
+        <div class="mb-3">
+            <label for="category" class="form-label">Category:</label>
+            <select th:field="*{category}" class="form-control" id="category">
+                <option th:each="category : ${categories}" th:value="${category.id}" th:text="${category.name}"
+                        th:selected="${category.id == product.category.id}"></option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="description" class="form-label">Description:</label>
+            <textarea th:field="*{description}" class="form-control" id="description" required></textarea>
+        </div>
+        <!-- Input for Image URL -->
+        <div class="mb-3">
+            <label for="imageUrl" class="form-label">Image URL:</label>
+            <input type="text" th:field="*{imageUrl}" class="form-control" id="imageUrl" required>
+        </div>
+        <!-- Display Image -->
+        <div class="mb-3">
+            <img th:src="@{${product.imageUrl}}" alt="Product Image" class="product-image">
+        </div>
+        <button type="submit" class="btn btn-primary">Save Changes</button>
+        <a th:href="@{/products}" class="btn btn-link">Cancel</a>
+    </form>
+</section>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

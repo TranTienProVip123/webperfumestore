@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security5"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout}">
+<head>
+    <title>Perfume Store</title>
+    <link rel="icon" type="image/png" href="/uploads/perfume.png">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        body {
+            background-color: #121212;
+            color: #ffffff;
+        }
+
+        .box:hover input {
+            width: 300px;
+        }
+
+        .box input {
+            width: 0;
+            outline: none;
+            border: none;
+            font-weight: 500;
+            transition: 0.8s;
+            background: transparent;
+            color: #ffffff;
+        }
+
+        .box input::placeholder {
+            color: #888888;
+        }
+
+        .box a .fas {
+            color: #ffffff;
+            font-size: 18px;
+        }
+
+        .card {
+            background-color: #1f1f1f;
+            border: 1px solid #333333;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            padding: 0.5rem;
+        }
+
+        .card-body {
+            padding: 0.75rem;
+            color: #ffffff;
+        }
+
+        .card-title {
+            font-size: 0.875rem;
+            color: #ffffff;
+        }
+
+        .card-subtitle {
+            font-size: 0.75rem;
+            color: #dddddd !important;
+        }
+
+        .card-text {
+            font-size: 0.75rem;
+            color: #dddddd;
+        }
+
+        .btn-sm {
+            font-size: 0.75rem;
+        }
+
+        .form-control {
+            font-size: 0.75rem;
+            background-color: #333333;
+            color: #ffffff;
+            border: 1px solid #444444;
+        }
+
+        .product-image {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+        }
+
+        .btn-success {
+            background-color: #28a745;
+            border-color: #28a745;
+        }
+
+        .btn-danger {
+            background-color: #dc3545;
+            border-color: #dc3545;
+        }
+
+        .btn-warning {
+            background-color: #ffc107;
+            border-color: #ffc107;
+        }
+
+        .btn-info {
+            background-color: #17a2b8;
+            border-color: #17a2b8;
+        }
+
+        .btn-outline-light {
+            color: #ffffff;
+            border-color: #ffffff;
+            transition: background-color 0.3s ease-in-out;
+        }
+
+        .btn-outline-light:hover {
+            background-color: #ffffff;
+            color: #121212;
+        }
+
+        .btn-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .more-info {
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .quantity-input {
+            width: 60px;
+        }
+
+        .form-control.quantity-input {
+            text-align: center;
+        }
+    </style>
+    <script>
+        function searchProducts() {
+            let input = document.getElementById('search-input').value.toLowerCase();
+            let productCards = document.getElementsByClassName('product-card');
+
+            for (let i = 0; i < productCards.length; i++) {
+                let productName = productCards[i].getElementsByClassName('card-title')[0].textContent.toLowerCase();
+                if (productName.includes(input)) {
+                    productCards[i].style.display = "";
+                } else {
+                    productCards[i].style.display = "none";
+                }
+            }
+        }
+    </script>
+</head>
+<body>
+<section layout:fragment="content">
+    <div class="d-flex justify-content-center align-items-center my-4">
+        <h1 class="me-4">Products List</h1>
+        <div class="box">
+            <input id="search-input" type="text" placeholder="Search..." onkeyup="searchProducts()" class="form-control d-inline-block">
+            <a href="#">
+                <i class="fas fa-search"></i>
+            </a>
+        </div>
+    </div>
+    <div class="container mx-auto mt-4">
+        <div class="row" id="products-container">
+            <!-- Loop through each product -->
+            <div class="col-md-3 col-sm-6 product-card" th:each="product : ${products}">
+                <div class="card mb-4">
+                    <img th:src="@{${product.imageUrl}}" class="card-img-top product-image" alt="Product Image">
+                    <div class="card-body">
+                        <h5 class="card-title" th:text="${product.name}">Product Name</h5>
+                        <h6 class="card-subtitle mb-2 text-muted" th:text="${product.category.name}">Category</h6>
+                        <p class="card-text" th:text="${product.description}">Product Description</p>
+                        <p class="card-text"><strong>Price:</strong> <span th:text="${product.price}">0.00</span></p>
+                        <div class="d-flex flex-column">
+                            <!-- More Information Button -->
+                            <a th:href="@{/products/{id}(id=${product.id})}" class="btn btn-info btn-sm more-info">More Information</a>
+                            <!-- Button Container -->
+                            <div class="btn-container mt-2">
+                                <!-- Admin Actions -->
+                                <div sec:authorize="hasAuthority('ADMIN')" class="d-flex gap-2">
+                                    <a th:href="@{/products/edit/{id}(id=${product.id})}" class="btn btn-success btn-sm"><i class="fas fa-edit"></i> Edit</a>
+                                    <a th:href="@{/products/delete/{id}(id=${product.id})}" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete?')"><i class="fas fa-trash-alt"></i> Delete</a>
+                                </div>
+                                <!-- Add to Cart Form -->
+                                <form th:action="@{/cart/add}" method="post" class="d-flex align-items-center gap-2">
+                                    <input type="number" name="quantity" min="1" value="1" class="form-control quantity-input">
+                                    <input type="hidden" th:value="${product.id}" name="productId">
+                                    <button type="submit" class="btn btn-warning btn-sm"><i class="fas fa-cart-plus"></i> Add to Cart</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+</body>
+</html>
